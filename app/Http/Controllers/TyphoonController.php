@@ -1058,4 +1058,6 @@ class TyphoonController extends Controller
             'blocked_roads_label' => $routesPayload['blocked_roads_label'] ?? '0 blocked roads reported',
         ]);
     }
+
+    
 }

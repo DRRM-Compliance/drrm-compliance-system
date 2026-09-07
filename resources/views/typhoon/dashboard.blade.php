@@ -289,6 +289,142 @@
     .school-btn-custom:hover, .school-btn-custom.active {
         color: var(--accent-blue);
     }
+    
+    /* Sidebar Core Styles */
+    .dashboard-wrapper {
+        display: flex;
+        width: 100%;
+        height: 100vh;
+    }
+
+    .app-sidebar {
+        width: 280px;
+        background-color: var(--sidebar-bg);
+        border-right: 1px solid rgba(255, 255, 255, 0.05);
+        display: flex;
+        flex-direction: column;
+        flex-shrink: 0;
+    }
+
+    .sidebar-header {
+        padding: 24px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .sidebar-brand {
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 700;
+        font-size: 1.25rem;
+        color: #ffffff;
+        line-height: 1.2;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .sidebar-brand span {
+        color: var(--accent-blue);
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 500;
+        letter-spacing: 1px;
+    }
+
+    .sidebar-menu {
+        list-style: none;
+        padding: 20px 12px;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .sidebar-link {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 12px 16px;
+        color: rgba(255, 255, 255, 0.6);
+        text-decoration: none;
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 600;
+        font-size: 1.05rem;
+        letter-spacing: 0.5px;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+    }
+
+    .sidebar-link i {
+        font-size: 1.1rem;
+        width: 20px;
+        text-align: center;
+    }
+
+    .sidebar-link:hover {
+        background: rgba(255, 255, 255, 0.03);
+        color: #ffffff;
+    }
+
+    .sidebar-link.active {
+        background: rgba(0, 210, 255, 0.1);
+        color: var(--accent-blue);
+        text-shadow: 0 0 10px rgba(0, 210, 255, 0.3);
+    }
+
+    .sidebar-link-toggle {
+        width: 100%;
+        border: 0;
+        background: transparent;
+        cursor: pointer;
+        text-align: left;
+    }
+
+    .sidebar-link-toggle .sidebar-chevron {
+        margin-left: auto;
+        font-size: 0.75rem;
+        transition: transform 0.2s ease;
+    }
+
+    .sidebar-link-toggle[aria-expanded="true"] .sidebar-chevron {
+        transform: rotate(180deg);
+    }
+
+    .sidebar-submenu {
+        list-style: none;
+        padding: 4px 0 0 34px;
+        margin: 0;
+    }
+
+    .sidebar-submenu a,
+    .sidebar-submenu button {
+        display: block;
+        width: 100%;
+        padding: 8px 12px;
+        border: 0;
+        border-radius: 6px;
+        background: transparent;
+        color: rgba(255, 255, 255, 0.55);
+        text-align: left;
+        text-decoration: none;
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+    }
+
+    .sidebar-submenu a:hover,
+    .sidebar-submenu button:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--accent-blue);
+    }
+
+    /* Right Main Content Panel */
+    .content-panel {
+        flex-grow: 1;
+        min-width: 0;
+        height: 100vh;
+        overflow-y: auto;
+    }
+
 </style>
 @endpush
 
@@ -309,6 +445,8 @@
             </div>
         </div>
 
+
+        
         {{-- Centered Navigation --}}
         <div class="header-nav-center">
             <a href="{{ route('typhoon.dashboard') }}" class="nav-link-custom active">
@@ -350,9 +488,65 @@
     </div>
 
 {{-- Main Row spanning 100% width --}}
-<div class="row g-4 mb-4 mx-0 w-100">
+<div class="d-flex w-100 min-vh-100" style="overflow-x: hidden;">
 
-    {{-- Left Card: Estimated Affected Population --}} 
+    
+    <!-- Left Navigation Sidebar -->
+    <div class="app-sidebar">
+        <div class="sidebar-header">
+        <ul class="sidebar-menu">
+            <li>
+                <a href="#" class="sidebar-link active">
+                    <i class="fas fa-th-large"></i> Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="#" class="sidebar-link">
+                    <i class="fas fa-school"></i> Evacuation Centers
+                </a>
+            </li>
+            <li>
+                <button type="button" class="sidebar-link sidebar-link-toggle" data-bs-toggle="collapse" data-bs-target="#familiesSidebarMenu" aria-expanded="false" aria-controls="familiesSidebarMenu">
+                    <i class="fas fa-users"></i>
+                    <span>Families &amp; Individuals</span>
+                    <i class="fas fa-chevron-down sidebar-chevron"></i>
+                </button>
+                <ul id="familiesSidebarMenu" class="sidebar-submenu collapse">
+                    <li>
+                        <button type="button" data-bs-toggle="modal" data-bs-target="#familyRegistrationModal">
+                            <i class="fas fa-user-plus me-2"></i> Register Family
+                        </button>
+                    </li>
+                    <li>
+                        <a href="#evacuationCentersTableBody">
+                            <i class="fas fa-list me-2"></i> View Registered Families
+                        </a>
+                    </li>
+                    <li>
+                        <a href="dswdform.html">
+                            <i class="fas fa-file-alt me-2"></i> DSWD Form
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <a href="#" class="sidebar-link">
+                    <i class="fas fa-box-open"></i> Resource Inventory
+                </a>
+            </li>
+            <li>
+                <a href="#" class="sidebar-link">
+                    <i class="fas fa-file-alt"></i> Incident Reports
+                </a>
+            </li>
+        </ul>
+    </div>
+
+</div>
+
+ <div class="flex-grow-1 p-4 d-flex flex-column gap-4" style="background-color: #0a1128; min-width: 0;">
+            <div class="row g-3">
+                  {{-- Left Card: Estimated Affected Population --}} 
     <div class="col-md-6"> 
         <div class="dashboard-card h-100"> 
             <div class="card-header-custom"><i class="fas fa-users"></i>Estimated Affected Population</div> 
@@ -429,9 +623,7 @@
             </div> 
         </div> 
     </div> 
-
-</div>
-
+  </div>
 
     {{-- ═══ Active Typhoon Alert Banner (only shown when a TC is near Philippines) ═══ --}}
     @if(!empty($activeTyphoon))
@@ -507,7 +699,8 @@
     </div>
     @endif
 
-{{-- Family Registration Modal (Already Updated) --}}
+{{-- Family Registration Modal moved to a reusable partial. --}}
+@if(false)
 <div class="modal fade" id="familyRegistrationModal" tabindex="-1" aria-labelledby="familyRegistrationModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <form method="POST" action="{{ route('typhoon.families.store') }}" id="familyRegistrationForm">
@@ -536,7 +729,7 @@
                             <select id="existingFamilySelect" class="form-select">
                                 <option value="">-- Select existing family --</option>
                             </select>
-                            <small class="text-muted">Only families previously registered in the selected evacuation center are listed.</small>
+                            <small class="text-muted">Families registered in any evacuation center are available for selection.</small>
                         </div>
                     </div>
 
@@ -661,6 +854,8 @@
         </form>
     </div>
 </div>
+@endif
+@include('typhoon.family-registration-modal')
 
     {{-- Bottom Row: Evacuation Centers Status --}}
     <div class="row g-4">
@@ -830,18 +1025,9 @@
                                         </div>
                                     </td>
                                     <td class="pe-4 text-end">
-                                        <div class="btn-group">
-                                            <button class="btn btn-sm btn-action rounded-start"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#familyRegistrationModal"
-                                                    data-ec-id="{{ $ec->id }}"
-                                                    data-ec-name="{{ $ec->school_name ?? $ec->identification ?? ('Center #' . $ec->id) }}">
-                                                <i class="fas fa-user-plus me-1"></i> Register
-                                            </button>
-                                            <a href="{{ route('typhoon.evacuation-center.show', $ec->id) }}" class="btn btn-sm btn-action rounded-end">
-                                                <i class="fas fa-expand-alt"></i>
-                                            </a>
-                                        </div>
+                                        <a href="{{ route('typhoon.evacuation-center.show', $ec->id) }}" class="btn btn-sm btn-action" title="Manage records">
+                                            <i class="fas fa-expand-alt me-1"></i> Manage
+                                        </a>
                                     </td>
                                 </tr>
                                 @empty
@@ -1156,6 +1342,7 @@
         });
     });
 
+    /* Family registration logic moved to family-registration-modal.blade.php.
     // 2. Family Modal Logic
     const existingFamiliesByCenter = @json($existingFamiliesByCenter ?? []);
     const familyModalEl = document.getElementById('familyRegistrationModal');
@@ -1479,15 +1666,25 @@
     }
 
     function centerFamilies(centerId) {
-        return existingFamiliesByCenter[String(centerId)] || [];
+        // Keep compatibility with the existing per-center response while exposing
+        // every registered family to every evacuation center.
+        const allFamilies = Object.values(existingFamiliesByCenter || {}).flat();
+        const uniqueFamilies = new Map();
+
+        allFamilies.forEach((family) => {
+            if (family && family.id != null) {
+                uniqueFamilies.set(String(family.id), family);
+            }
+        });
+
+        return Array.from(uniqueFamilies.values());
     }
 
     function refreshExistingFamilyChoices() {
         if (!existingFamilySelect || !modalCenterSelect) return;
-        const centerId = modalCenterSelect.value;
-        const families = centerFamilies(centerId);
+        const families = centerFamilies(modalCenterSelect.value);
 
-        existingFamilySelect.innerHTML = '<option value="">-- Select existing family --</option>';
+        existingFamilySelect.innerHTML = '<option value="">-- Select registered family --</option>';
         families.forEach((family) => {
             const status = family.checked_out_at ? 'History' : 'Current';
             const timestamp = family.created_at ? new Date(family.created_at).toLocaleDateString() : '';
@@ -1700,6 +1897,8 @@
             if (lockedCenterHint) lockedCenterHint.classList.add('d-none');
         });
     }
+
+    */
 
     // 3. Social Print Function
     function printSocialCard() {

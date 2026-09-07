@@ -358,6 +358,16 @@ Route::prefix('drill-monitoring')
         Route::get('/inspection/{id}/checklist', [FireSafetyController::class, 'inspectionChecklist'])->name('fire-safety.inspection.checklist');
 
 
+// 1. Route to display the dashboard (where your button and modal live)
+Route::get('/drill-monitoring/dashboard', [DrillMonitoringController::class, 'index'])
+    ->name('drill-monitoring.dashboard');
+
+// 2. Route to handle the form submission inside your lognewmonitoring view
+Route::post('/drill-monitoring/store', [DrillMonitoringController::class, 'store'])
+    ->name('drill-monitoring.store');
+
+
+
 // Clean explicit route for the report layout
         Route::get('monitoring-tool/{id}', [DrillMonitoringController::class, 'printInspection'])->name('drill-monitoring.print.monitoring-tool');
 
