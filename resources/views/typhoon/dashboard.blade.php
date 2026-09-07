@@ -865,7 +865,6 @@
     {{-- Shared modals --}}
     @include('typhoon.partials.choose-school-modal')
     @include('typhoon.partials.create-evac-center-modal')
-    @include('typhoon.FamilyModal')
 </div>
 
 {{-- ===================== SOCIAL / PRINT OVERLAY ===================== --}}
