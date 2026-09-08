@@ -1,11 +1,11 @@
 {{-- resources/views/typhoon/dashboard.blade.php --}}
 @extends('layouts.app')
 
-@section('title', 'Typhoon/Flooding Monitoring')
+@section('title', 'Evacuation Monitoring')
 @section('hide_main_nav', '1')
 
 @push('styles')
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
     :root {
         --bg-dark: #0a1128;
@@ -15,18 +15,51 @@
         --text-dark: #1e293b;
         --text-muted: #64748b;
         --glass-border: rgba(0, 0, 0, 0.05);
+        --font-display: 'Sora', sans-serif;
+        --font-body: 'Inter', sans-serif;
+    }
+
+    .search-bar-container input::placeholder {
+        color: rgba(255, 255, 255, 0.6) !important;
+    }
+    .search-bar-container input:focus {
+        background-color: rgba(255, 255, 255, 0.15) !important;
+        border-color: rgba(255, 255, 255, 0.5) !important;
+        color: white !important;
+        box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.1) !important;
+        outline: none;
+    }
+    .search-bar-container i {
+        color: rgba(255, 255, 255, 0.7) !important;
     }
 
     body {
         background-color: var(--bg-dark) !important;
         background-image: radial-gradient(circle at 50% 50%, #112240 0%, #0a1128 100%);
         color: var(--text-dark);
-        font-family: 'Space Grotesk', 'Inter', sans-serif;
+        font-family: var(--font-body);
     }
 
     h1, h2, h3, h4, h5, .card-header-custom, .stat-value, .fw-bold {
-        font-family: 'Rajdhani', sans-serif;
+        font-family: var(--font-display);
         letter-spacing: 0.5px;
+    }
+
+    /* ── Full-screen context for dashboard ── */
+    html {
+        font-size: 80%;
+    }
+    html, body {
+        height: 100%;
+    }
+    body > div,
+    body > div > main {
+        height: 100%;
+    }
+    /* Override app layout's py-4 padding for this page */
+    main.py-4 {
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
     }
 
     .container-fluid {
@@ -173,13 +206,13 @@
     }
 
     /* ====================================================
-     * 70/30 HYBRID MOBILE APPROACH — Typhoon Dashboard
+     * 70/30 HYBRID MOBILE APPROACH â€” Typhoon Dashboard
      * Desktop layout preserved. Minimal tweaks only:
      *  1. Scrollable tables
      *  2. Slightly larger button tap targets
      *  3. Stack form columns in modals/forms
      * ==================================================== */
-    /* Triggered by 1024px viewport lock — desktop layout preserved but mobile enhancements active */
+    /* Triggered by 1024px viewport lock â€” desktop layout preserved but mobile enhancements active */
     @media (max-width: 1024.1px) {
         .table-responsive {
             overflow-x: auto !important;
@@ -245,7 +278,7 @@
     .nav-link-custom {
         color: rgba(255, 255, 255, 0.7);
         text-decoration: none;
-        font-family: 'Rajdhani', sans-serif;
+        font-family: var(--font-display);
         font-weight: 700;
         font-size: 1.1rem;
         text-transform: uppercase;
@@ -786,60 +819,49 @@
                         </div>
                     </div>
 
+    {{-- â”€â”€ MAIN BODY: Sidebar + Center + Right â”€â”€ --}}
+    <div class="evac-body">
 
-                    <hr>
+        {{-- â”€â”€ LEFT SIDEBAR â”€â”€ --}}
+        <aside class="evac-sidebar">
+            <nav class="evac-nav">
 
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <label class="form-label fw-bold mb-0">Other Family Members</label>
-                        <button type="button" class="btn btn-sm btn-outline-primary" id="add-member-btn">
-                            <i class="fas fa-plus"></i> Add Member
-                        </button>
+                <a href="#" class="evac-nav-item" id="evac-nav-incident">
+                    <div class="evac-nav-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
                     </div>
-                    <div id="family-members-container">
-                    </div>
+                    <span class="evac-nav-label">Incident</span>
+                </a>
 
-                    <hr>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="confirm_check_in" id="confirmCheckIn" checked>
-                        <label class="form-check-label" for="confirmCheckIn">
-                            Check-in this family now (sets current date/time)
-                        </label>
+                {{-- Register with dropdown --}}
+                <div class="evac-nav-item evac-nav-has-sub" id="evac-nav-register-wrap">
+                    <div class="evac-nav-item-inner" id="evac-nav-register-toggle">
+                        <div class="evac-nav-icon">
+                            <i class="fas fa-clipboard-list"></i>
+                        </div>
+                        <span class="evac-nav-label">Register</span>
+                        <i class="fas fa-chevron-down evac-nav-caret" id="evac-register-caret"></i>
+                    </div>
+                    <div class="evac-nav-sub" id="evac-nav-register-sub">
+                        <a href="#" class="evac-nav-sub-item" id="registerNavNew">
+                            <i class="fas fa-arrow-right evac-sub-arrow"></i> New
+                        </a>
+                        <a href="#" class="evac-nav-sub-item" id="registerNavExisting">
+                            <i class="fas fa-arrow-right evac-sub-arrow"></i> Existing
+                        </a>
                     </div>
                 </div>
 
-
-                    <!-- Evacuation Center Dropdown -->
-                <div class="modal-body">
-                    <div class="col-12">
-                        <label class="form-label fw-bold small text-uppercase text-muted">Evacuation Center / School <span class="text-danger">*</span></label>
-                        <div id="lockedCenterHint" class="small text-primary mb-1 d-none">
-                            <i class="fas fa-lock me-1"></i> Locked to selected evacuation center.
-                        </div>
-                        <select name="evacuation_center_id" id="modal_evacuation_center_id" class="form-select" required>
-                            <option value="">-- Select Evacuation Center --</option>
-                            @foreach($evacuationCenters ?? [] as $ec)
-                                <option value="{{ $ec->id }}">
-                                    {{ $ec->school_name ?? $ec->identification ?? ('Evacuation Center #' . $ec->id) }}
-                                </option>
-                            @endforeach
-                        </select>
+                <a href="#" class="evac-nav-item" id="evac-nav-school" data-bs-toggle="modal" data-bs-target="#chooseSchoolModal">
+                    <div class="evac-nav-icon">
+                        <i class="fas fa-school"></i>
                     </div>
+                    <span class="evac-nav-label">School</span>
+                </a>
 
-<!--work in progress-->
-                    <!-- Fire Safety Building Dropdown -->
-                    <div class="col-12">
-                        <label class="form-label fw-bold small text-uppercase text-muted">Building <span class="text-danger">*</span></label>
-                        <select name="building_id" id="firesafety_buildings" class="form-select" required>
-                            <option value="">-- Select Building --</option> 
-                        </select>
-                    </div>
-
-                    <!-- Room Dropdown -->
-                    <div class="col-12">
-                        <label class="form-label fw-bold small text-uppercase text-muted">Room <span class="text-danger">*</span></label>
-                        <select name="room_id" id="fire_safety_rooms" class="form-select" required>
-                            <option value="">-- Select Room --</option>
-                        </select>
+                <a href="#" class="evac-nav-item" id="evac-nav-remarks">
+                    <div class="evac-nav-icon">
+                        <i class="fas fa-comment-dots"></i>
                     </div>
                 </div>
 <!--work in progress-->
@@ -857,206 +879,243 @@
 @endif
 @include('typhoon.family-registration-modal')
 
-    {{-- Bottom Row: Evacuation Centers Status --}}
-    <div class="row g-4">
-        <div class="col-12">
-            @if(auth()->user()->role === 'contributor')
-                @php $ec = $evacuationCenters->first(); @endphp
-                @if($ec)
-                <div class="dashboard-card overflow-hidden">
-                    <div class="card-header-custom d-flex justify-content-between align-items-center">
-                        <span><i class="fas fa-school"></i> Your Managed School Center</span>
-                        <div class="d-flex gap-2">
-                            <span class="badge bg-success">CLEARED</span>
-                            <span class="badge bg-primary">OCCUPIED</span>
-                            <span class="badge bg-danger">FULL</span>
-                            <span class="badge text-white" style="background-color: #6f42c1;">DECAMP</span>
-                        </div>
-                    </div>
-                    <div class="p-4" style="background: white;">
-                        <div class="row align-items-center">
-                            <div class="col-md-4 border-end">
-                                <div class="stat-label mb-1">Center Name</div>
-                                <div class="h4 fw-bold text-primary mb-1">{{ $ec->school_name ?? $ec->identification }}</div>
-                                <div class="small text-muted mb-3"><i class="fas fa-id-card me-1"></i> UID: {{ $ec->id }}</div>
-                                
-                                <div class="stat-label mb-1">Location</div>
-                                <div class="small mb-0"><i class="fas fa-map-marker-alt me-1 text-danger"></i> {{ $ec->location }}</div>
-                            </div>
-                            <div class="col-md-5 px-4">
-                                <div class="row text-center g-3">
-                                    <div class="col-6">
-                                        <div class="p-3 rounded bg-light border">
-                                            <div class="stat-label">Current Load</div>
-                                            <div class="stat-value text-info" style="font-size: 1.8rem;">{{ $ec->current_occupancy }}</div>
-                                            <div class="small text-muted">Individuals</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="p-3 rounded bg-light border">
-                                            <div class="stat-label">Max Capacity</div>
-                                            <div class="stat-value text-dark" style="font-size: 1.8rem;">{{ $ec->capacity > 0 ? $ec->capacity : '∞' }}</div>
-                                            <div class="small text-muted">Limit</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="mt-4">
-                                    <div class="d-flex justify-content-between small mb-1">
-                                        <span class="text-muted">Load Status</span>
-                                        @php
-                                            $loadPercent = $ec->capacity > 0 ? round(($ec->current_occupancy / $ec->capacity) * 100) : 0;
-                                            $barColor = $loadPercent >= 90 ? 'bg-danger' : ($loadPercent >= 70 ? 'bg-warning' : 'bg-success');
-                                        @endphp
-                                        <span class="fw-bold">{{ $loadPercent }}% Full</span>
-                                    </div>
-                                    <div class="progress" style="height: 10px;">
-                                        <div class="progress-bar {{ $barColor }}" style="width: {{ min($loadPercent, 100) }}%"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3 text-center border-start">
-                                <div class="stat-label mb-2">Operational Status</div>
-                                @php
-                                    $statusClass = 'success';
-                                    $statusText = 'CLEARED';
-                                    if($ec->usage_status === 'occupied') { $statusClass = 'primary'; $statusText = 'OCCUPIED'; }
-                                    elseif($ec->usage_status === 'full') { $statusClass = 'danger'; $statusText = 'FULL'; }
-                                    elseif($ec->usage_status === 'decamp') { $statusClass = 'custom'; $statusText = 'DECAMP'; }
-                                @endphp
-                                <span class="badge badge-custom bg-{{ $statusClass }} fs-6 mb-4 px-4 py-2" style="{{ $ec->usage_status === 'decamp' ? 'background-color: #6f42c1 !important;' : '' }}">
-                                    {{ $statusText }}
-                                </span>
-                                
-                                <div class="d-grid gap-2">
-                                    <button class="btn btn-primary fw-bold"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#familyRegistrationModal"
-                                            data-ec-id="{{ $ec->id }}"
-                                            data-ec-name="{{ $ec->school_name ?? $ec->identification }}">
-                                        <i class="fas fa-user-plus me-1"></i> Register Family
-                                    </button>
-                                    <a href="{{ route('typhoon.evacuation-center.show', $ec->id) }}" class="btn btn-outline-primary fw-bold">
-                                        <i class="fas fa-external-link-alt me-1"></i> Manage Records
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-light p-3 border-top">
-                        <div class="row align-items-center">
-                            <div class="col-md-9">
-                                <span class="small fw-bold text-muted text-uppercase me-2"><i class="fas fa-boxes me-1"></i> Resources:</span>
-                                <span class="small text-dark">{{ $ec->emergency_resources ?: 'No reported resource shortages.' }}</span>
-                            </div>
-                            <div class="col-md-3 text-end">
-                                <span class="small text-muted" style="font-size: 0.7rem;"><i>Updated: {{ $ec->updated_at->diffForHumans() }}</i></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                @else
-                <div class="dashboard-card p-5 text-center">
-                    <div class="opacity-50">
-                        <i class="fas fa-school fa-4x mb-4"></i>
-                        <h3>No School Assigned</h3>
-                        <p>Please contact an administrator to assign you a school for management.</p>
-                    </div>
-                </div>
-                @endif
-            @else
-                <!-- Admin Table View -->
-                <div class="dashboard-card">
-                    <div class="card-header-custom d-flex justify-content-between align-items-center flex-wrap gap-3">
-                        <span><i class="fas fa-hospital-user"></i>Evacuation Centers Status Monitoring</span>
+            </nav>
+        </aside>
 
-                        <div style="min-width: 250px;">
-                            <input type="text" id="schoolSearchInput" class="form-control form-control-sm bg-white bg-opacity-10 border-white border-opacity-25 text-white" placeholder="Search school name..." style="font-family: 'Space Grotesk', sans-serif; text-transform: none; letter-spacing: normal;">
-                        </div>
+        {{-- â”€â”€ CENTER COLUMN â”€â”€ --}}
+        <main class="evac-main">
 
-                        <div class="d-flex gap-2">
-                            <span class="badge bg-success">CLEARED</span>
-                            <span class="badge bg-primary">OCCUPIED</span>
-                            <span class="badge bg-danger">FULL</span>
-                            <span class="badge text-white" style="background-color: #6f42c1;">DECAMP</span>
+            {{-- â”€â”€ SCHOOL STATUS / UPDATES (Typhoon Alert Banner) â”€â”€ --}}
+            <section class="evac-panel evac-panel-alert">
+                <div class="evac-panel-header">
+                    <i class="fas fa-broadcast-tower"></i>
+                    <span>School Status / Updates</span>
+                </div>
+                <div class="evac-panel-body">
+                    @if(!empty($activeTyphoon))
+                        @php
+                            $signalColors = [
+                                1 => ['bg' => '#f59e0b', 'border' => '#d97706', 'glow' => 'rgba(245,158,11,0.35)'],
+                                2 => ['bg' => '#f97316', 'border' => '#ea580c', 'glow' => 'rgba(249,115,22,0.35)'],
+                                3 => ['bg' => '#ef4444', 'border' => '#dc2626', 'glow' => 'rgba(239,68,68,0.35)'],
+                                4 => ['bg' => '#9333ea', 'border' => '#7c3aed', 'glow' => 'rgba(147,51,234,0.35)'],
+                                5 => ['bg' => '#0f172a',  'border' => '#00d2ff', 'glow' => 'rgba(0,210,255,0.35)'],
+                            ];
+                            $sc = $signalColors[$activeTyphoon['signal']] ?? $signalColors[1];
+                        @endphp
+                        <div class="evac-typhoon-alert" style="background: linear-gradient(135deg, {{ $sc['bg'] }} 0%, {{ $sc['border'] }} 100%); box-shadow: 0 0 30px {{ $sc['glow'] }};">
+                            {{-- Animated storm rings --}}
+                            <div class="evac-storm-ring evac-storm-ring-1"></div>
+                            <div class="evac-storm-ring evac-storm-ring-2"></div>
+
+                            <div class="evac-alert-content">
+                                <div class="evac-alert-left">
+                                    <div class="evac-storm-emoji">ðŸŒ€</div>
+                                    <div class="evac-alert-text">
+                                        <div class="evac-alert-sub">âš  PAGASA Active Weather Alert â€” Directly Affecting Olongapo City Area</div>
+                                        <div class="evac-alert-title">
+                                            Effects of <span class="evac-alert-cat">{{ $activeTyphoon['category'] }}</span>
+                                            "<span class="evac-alert-name">{{ $activeTyphoon['name'] }}</span>"
+                                        </div>
+                                        <div class="evac-alert-meta">
+                                            <span><i class="fas fa-map-marker-alt me-1"></i> Near <strong>Olongapo City Â· Zambales</strong></span>
+                                            <span>|</span>
+                                            <span><i class="fas fa-ruler-combined me-1"></i> ~{{ $activeTyphoon['distance_km'] ?? '?' }} km from Olongapo</span>
+                                            <span>|</span>
+                                            <span><i class="fas fa-wind me-1"></i> {{ $activeTyphoon['wind_kph'] > 0 ? $activeTyphoon['wind_kph'].' km/h' : '--' }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="evac-alert-right">
+                                    <div class="evac-signal-label">TCWS Level</div>
+                                    <div class="evac-signal-badge">#{{ $activeTyphoon['signal'] }}</div>
+                                    <div class="evac-signal-sub">Signal No.</div>
+                                    <div class="evac-signal-source">Source: GDACS Â· Auto-refreshes every 30 min</div>
+                                </div>
+                            </div>
+                            <div class="evac-alert-stripe">
+                                <i class="fas fa-exclamation-circle me-1"></i>
+                                <strong>DepEd Reminder:</strong>
+                                Classes in affected areas are automatically suspended under Tropical Cyclone Wind Signal {{ $activeTyphoon['signal'] >= 1 ? '#'.$activeTyphoon['signal'] : '' }}.
+                                All DepEd-Zambales schools must activate their DRRM protocols immediately.
+                            </div>
                         </div>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-custom table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th class="ps-4">School / Center Name</th>
-                                    <th>Location & Area</th>
-                                    <th class="text-center">Max Capacity</th>
-                                    <th class="text-center">Current Load</th>
-                                    <th class="text-center">Operational Status</th>
-                                    <th>Resource Inventory</th>
-                                    <th class="pe-4 text-end">Management</th>
-                                </tr>
-                            </thead>
-                            <tbody id="evacuationCentersTableBody">
-                                @forelse($evacuationCenters ?? [] as $ec)
-                                <tr class="school-row">
-                                    <td class="ps-4">
-                                        <div class="fw-bold fs-6 school-name-text">{{ $ec->school_name ?? $ec->identification ?? ('Center #' . $ec->id) }}</div>
-                                        <small class="text-muted">UID: {{ $ec->school_id }}</small>
-                                    </td>
-                                    <td>
-                                        <div class="small"><i class="fas fa-map-marker-alt me-1 text-danger"></i> {{ Str::limit($ec->location, 40) }}</div>
-                                    </td>
-                                    <td class="text-center fw-bold">{{ $ec->capacity > 0 ? $ec->capacity : 'Unlimited' }}</td>
-                                    <td class="text-center">
-                                        <div class="fw-bold text-info fs-5">{{ $ec->current_occupancy }}</div>
-                                    </td>
-                                    <td class="text-center">
-                                        @php
-                                            $statusClass = 'success';
-                                            $statusText = 'CLEARED';
-                                            if($ec->usage_status === 'occupied') { $statusClass = 'primary'; $statusText = 'OCCUPIED'; }
-                                            elseif($ec->usage_status === 'full') { $statusClass = 'danger'; $statusText = 'FULL'; }
-                                            elseif($ec->usage_status === 'decamp') { $statusClass = 'custom'; $statusText = 'DECAMP'; }
-                                        @endphp
-                                        <span class="badge badge-custom bg-{{ $statusClass }}" style="{{ $ec->usage_status === 'decamp' ? 'background-color: #6f42c1 !important;' : '' }}">
-                                            {{ $statusText }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div class="small text-truncate" style="max-width: 180px;" title="{{ $ec->emergency_resources }}">
-                                            {{ $ec->emergency_resources ?? 'Standby' }}
-                                        </div>
-                                    </td>
-                                    <td class="pe-4 text-end">
-                                        <a href="{{ route('typhoon.evacuation-center.show', $ec->id) }}" class="btn btn-sm btn-action" title="Manage records">
-                                            <i class="fas fa-expand-alt me-1"></i> Manage
-                                        </a>
-                                    </td>
-                                </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="7" class="text-center py-5">
-                                        <div class="opacity-50">
-                                            <i class="fas fa-satellite fa-3x mb-3"></i>
-                                            <h5>No Active Monitoring Stations</h5>
-                                            <p>Please register evacuation centers to begin tracking.</p>
-                                        </div>
-                                    </td>
-                                </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+                    @else
+                        {{-- Empty State --}}
+                        <div class="evac-empty-state">
+                            <div class="evac-empty-icon">
+                                <i class="fas fa-sun"></i>
+                                <i class="fas fa-cloud evac-empty-cloud"></i>
+                            </div>
+                            <div class="evac-empty-title">No Active Typhoon Alerts</div>
+                            <div class="evac-empty-sub">Weather conditions are currently normal. No tropical cyclone threats detected in the area.</div>
+                        </div>
+                    @endif
+                </div>
+            </section>
+
+            {{-- â”€â”€ CURRENT STATUS OF SCHOOL â”€â”€ --}}
+            <section class="evac-panel evac-panel-schools">
+                <div class="evac-panel-header">
+                    <i class="fas fa-map-marked-alt"></i>
+                    <span>Current Status of School</span>
+                    <div class="dropdown ms-auto">
+                        <button class="btn btn-sm btn-outline-primary dropdown-toggle d-flex align-items-center gap-2" type="button" id="statusFilterDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="border-radius: 20px; padding: 0.4rem 1rem;">
+                            <i class="fas fa-filter"></i> <span id="currentStatusFilterText">All Status</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" aria-labelledby="statusFilterDropdown" style="border-radius: 12px; min-width: 150px; padding: 0.5rem;">
+                            <li><a class="dropdown-item d-flex align-items-center justify-content-between filter-status-btn mb-1 rounded" href="#" data-status="all"><span>All Status</span><i class="fas fa-check text-primary check-icon"></i></a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item d-flex align-items-center justify-content-between filter-status-btn mb-1 rounded" href="#" data-status="cleared"><span class="evac-badge evac-badge-cleared w-100 text-center me-2" style="padding: 4px 8px;">CLEARED</span><i class="fas fa-check text-primary check-icon d-none"></i></a></li>
+                            <li><a class="dropdown-item d-flex align-items-center justify-content-between filter-status-btn mb-1 rounded" href="#" data-status="occupied"><span class="evac-badge evac-badge-occupied w-100 text-center me-2" style="padding: 4px 8px;">OCCUPIED</span><i class="fas fa-check text-primary check-icon d-none"></i></a></li>
+                            <li><a class="dropdown-item d-flex align-items-center justify-content-between filter-status-btn mb-1 rounded" href="#" data-status="full"><span class="evac-badge evac-badge-full w-100 text-center me-2" style="padding: 4px 8px;">FULL</span><i class="fas fa-check text-primary check-icon d-none"></i></a></li>
+                            <li><a class="dropdown-item d-flex align-items-center justify-content-between filter-status-btn rounded" href="#" data-status="decamp"><span class="evac-badge evac-badge-decamp w-100 text-center me-2" style="padding: 4px 8px;">DECAMP</span><i class="fas fa-check text-primary check-icon d-none"></i></a></li>
+                        </ul>
                     </div>
                 </div>
-            @endif
-        </div>
-    </div>
-    {{-- Shared modals --}}
-    @include('typhoon.partials.choose-school-modal')
-    @include('typhoon.partials.create-evac-center-modal')
-</div>
+                <div class="evac-schools-table-wrap">
+                    <table class="evac-schools-table" id="evacSchoolsTable">
+                        <thead>
+                            <tr>
+                                <th class="th-name">Name of School</th>
+                                <th class="th-status">Status</th>
+                                <th class="th-families">No. Family</th>
+                                <th class="th-individuals">No. Individual</th>
+                            </tr>
+                        </thead>
+                        <tbody id="evacSchoolsTbody">
+                            @forelse($evacuationCenters ?? [] as $ec)
+                            <tr class="evac-school-row {{ $ec->is_cluster_priority ? 'evac-cluster-row' : '' }}"
+                                data-href="{{ route('typhoon.evacuation-center.show', $ec->id) }}"
+                                data-priority="{{ $ec->is_cluster_priority ? '1' : '0' }}"
+                                onclick="window.location=this.dataset.href">
+                                <td class="td-name">
+                                    @if($ec->is_cluster_priority)
+                                        <span class="evac-cluster-pin" title="Clustered / Priority School"><i class="fas fa-star"></i></span>
+                                    @endif
+                                    <span class="evac-school-name">{{ $ec->school_name ?? $ec->identification ?? ('Center #' . $ec->id) }}</span>
+                                </td>
+                                <td class="td-status">
+                                    @php
+                                        $st = $ec->usage_status ?? 'cleared';
+                                        $statusMap = [
+                                            'cleared'  => ['cls' => 'evac-badge-cleared',  'label' => 'CLEARED'],
+                                            'occupied' => ['cls' => 'evac-badge-occupied', 'label' => 'OCCUPIED'],
+                                            'full'     => ['cls' => 'evac-badge-full',     'label' => 'FULL'],
+                                            'decamp'   => ['cls' => 'evac-badge-decamp',   'label' => 'DECAMP'],
+                                        ];
+                                        $sm = $statusMap[$st] ?? $statusMap['cleared'];
+                                    @endphp
+                                    <span class="evac-badge {{ $sm['cls'] }}">{{ $sm['label'] }}</span>
+                                </td>
+                                <td class="td-num">{{ $ec->families_count ?? 0 }}</td>
+                                <td class="td-num">{{ $ec->current_occupancy ?? 0 }}</td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="4" class="evac-empty-row">
+                                    <i class="fas fa-school me-2 opacity-50"></i> No evacuation centers registered.
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+
+                {{-- Pagination Footer --}}
+                <div class="evac-pagination-bar">
+                    <button class="evac-page-btn" id="evacPrevPage" disabled>
+                        <i class="fas fa-chevron-left"></i> Prev
+                    </button>
+                    <span class="evac-page-info" id="evacPageInfo">Page 1 of â€”</span>
+                    <button class="evac-page-btn" id="evacNextPage">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </section>
+
+        </main>
+
+        {{-- â”€â”€ RIGHT SIDEBAR â”€â”€ --}}
+        <aside class="evac-right-sidebar">
+
+            {{-- Guidelines Panel --}}
+            <div class="evac-right-panel evac-guidelines-panel">
+                <div class="evac-right-panel-body">
+                    @if(!empty($activeTyphoon))
+                        @php $sig = $activeTyphoon['signal']; @endphp
+                        <div class="evac-guidelines-active">
+                            <div class="evac-guideline-alert-icon">ðŸŒ€</div>
+                            <div class="evac-guideline-signal-badge">Signal #{{ $sig }}</div>
+                            <div class="evac-guideline-title">Active Typhoon Protocols</div>
+
+                            <ul class="evac-guideline-list">
+                                @if($sig >= 1)
+                                    <li><i class="fas fa-ban text-warning me-2"></i><strong>Classes Suspended</strong> in all affected areas under Signal #{{ $sig }}.</li>
+                                @endif
+                                @if($sig >= 2)
+                                    <li><i class="fas fa-door-open text-info me-2"></i><strong>Open Evacuation Centers</strong> â€” Coordinate with Barangay DRRM Officers.</li>
+                                    <li><i class="fas fa-first-aid text-danger me-2"></i>Activate <strong>Emergency Response Teams</strong>.</li>
+                                @endif
+                                @if($sig >= 3)
+                                    <li><i class="fas fa-broadcast-tower text-danger me-2"></i>Establish <strong>Emergency Communication Lines</strong>.</li>
+                                    <li><i class="fas fa-truck text-warning me-2"></i>Pre-position <strong>relief goods</strong> at staging areas.</li>
+                                @endif
+                                @if($sig >= 4)
+                                    <li><i class="fas fa-exclamation-triangle text-danger me-2"></i><strong>Mandatory evacuation</strong> of high-risk zones.</li>
+                                @endif
+                                <li><i class="fas fa-clipboard-check text-success me-2"></i>Submit <strong>DRRM Situation Report</strong> every 6 hours.</li>
+                            </ul>
+
+                            <div class="evac-guideline-footer">
+                                <i class="fas fa-info-circle me-1"></i> Per DepEd-Zambales DRRM Guidelines
+                            </div>
+                        </div>
+                    @else
+                        {{-- Empty State --}}
+                        <div class="evac-right-empty">
+                            <div class="evac-right-empty-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div class="evac-right-empty-title">No Active Alerts</div>
+                            <div class="evac-right-empty-sub">
+                                Guidelines will appear here when there is an active typhoon threat.
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            {{-- Future Use Panel --}}
+            <div class="evac-right-panel evac-future-panel">
+                <div class="evac-right-panel-body evac-right-empty" style="min-height: 200px;">
+                    <div class="evac-right-empty-icon" style="opacity:0.25;">
+                        <i class="fas fa-cube"></i>
+                    </div>
+                    <div class="evac-right-empty-title" style="opacity:0.3;">Reserved</div>
+                    <div class="evac-right-empty-sub" style="opacity:0.25;">This section is reserved for future features.</div>
+                </div>
+            </div>
+
+        </aside>
+
+    </div>{{-- /.evac-body --}}
+</div>{{-- /.evac-dashboard-root --}}
+
+{{-- â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ SHARED MODALS & PARTIALS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ --}}
+@include('typhoon.partials.choose-school-modal')
+@include('typhoon.partials.create-evac-center-modal')
+@include('typhoon.FamilyModal')
+
+
+
+
+
 
 {{-- ===================== SOCIAL / PRINT OVERLAY ===================== --}}
 <div id="socialPrintModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.92); z-index:9999; flex-direction:column; align-items:center; justify-content:flex-start; overflow-y:auto; padding: 1.5rem 0;">
 
-    {{-- ACTION BUTTONS — outside the printable card --}}
+    {{-- ACTION BUTTONS â€” outside the printable card --}}
     <div id="printActionBar" style="display:flex; align-items:center; gap:1rem; margin-bottom:1.25rem; width:1100px; max-width:96vw; justify-content:flex-end;">
         <span style="color:#8892b0; font-size:0.82rem; margin-right:auto; font-family:'Space Grotesk',sans-serif;">
             <i class="fas fa-info-circle me-1"></i> Preview your social media report. Click <strong style="color:#00d2ff;">Save as PDF</strong> to download.
@@ -1070,7 +1129,7 @@
     </div>
 
     {{-- PRINT CARD (landscape, 1100px wide) --}}
-    <div id="printCard" style="background: linear-gradient(135deg, #0a1128 0%, #112240 55%, #0d2137 100%); color: #e2e8f0; width: 1100px; max-width: 96vw; border-radius: 16px; box-shadow: 0 0 80px rgba(0,210,255,0.15); border: 1px solid rgba(0,210,255,0.2); font-family: 'Rajdhani', 'Space Grotesk', sans-serif; padding: 2.25rem; margin-bottom: 2rem;">
+    <div id="printCard" style="background: linear-gradient(135deg, #0a1128 0%, #112240 55%, #0d2137 100%); color: #e2e8f0; width: 1100px; max-width: 96vw; border-radius: 16px; box-shadow: 0 0 80px rgba(0,210,255,0.15); border: 1px solid rgba(0,210,255,0.2); font-family: 'Sora', 'Inter', sans-serif; padding: 2.25rem; margin-bottom: 2rem;">
 
         {{-- Header with Logos --}}
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem; padding-bottom:1.25rem; border-bottom:1px solid rgba(0,210,255,0.2);">
@@ -1086,7 +1145,7 @@
             <div style="text-align:right;">
                 <div style="font-size:1.75rem; font-weight:800; color:#00d2ff; letter-spacing:3px; line-height:1;">TYPHOON & FLOOD</div>
                 <div style="font-size:1rem; font-weight:700; color:#ffffff; letter-spacing:2px;">REPORTING SYSTEM</div>
-                <div style="font-size:0.72rem; color:#8892b0; margin-top:0.35rem; letter-spacing:0.5px;">📅 {{ now()->format('F d, Y  —  h:i A') }}</div>
+                <div style="font-size:0.72rem; color:#8892b0; margin-top:0.35rem; letter-spacing:0.5px;">ðŸ“… {{ now()->format('F d, Y  â€”  h:i A') }}</div>
             </div>
         </div>
 
@@ -1113,7 +1172,7 @@
         {{-- Rainfall & Weather + Active Centers --}}
         <div style="display:grid; grid-template-columns: 1fr 1fr 0.6fr; gap:1rem; margin-bottom:1.25rem;">
             <div style="background:rgba(0,210,255,0.06); border:1px solid rgba(0,210,255,0.15); border-radius:10px; padding:1rem;">
-                <div style="font-size:0.65rem; color:#00d2ff; text-transform:uppercase; letter-spacing:1.5px; margin-bottom:0.75rem; font-weight:700;">📡 Daily Rainfall</div>
+                <div style="font-size:0.65rem; color:#00d2ff; text-transform:uppercase; letter-spacing:1.5px; margin-bottom:0.75rem; font-weight:700;">ðŸ“¡ Daily Rainfall</div>
                 <div style="display:flex; justify-content:space-around;">
                     <div style="text-align:center;">
                         <div style="font-size:0.65rem; color:#8892b0; margin-bottom:0.25rem;">Bangal Station</div>
@@ -1127,10 +1186,10 @@
                 </div>
             </div>
             <div style="background:rgba(52,152,219,0.08); border:1px solid rgba(52,152,219,0.2); border-radius:10px; padding:1rem;">
-                <div style="font-size:0.65rem; color:#00d2ff; text-transform:uppercase; letter-spacing:1.5px; margin-bottom:0.75rem; font-weight:700;">🌩 Weather Forecast</div>
+                <div style="font-size:0.65rem; color:#00d2ff; text-transform:uppercase; letter-spacing:1.5px; margin-bottom:0.75rem; font-weight:700;">ðŸŒ© Weather Forecast</div>
                 <div style="font-size:1.6rem; font-weight:800; color:#ffffff; line-height:1; margin-bottom:0.25rem;">{{ $typhoonData->name ?? 'Moderate Rain' }}</div>
-                <div style="font-size:0.82rem; color:#8892b0; margin-bottom:0.5rem;">{{ $typhoonData->temp ?? '28' }}°C &nbsp;|&nbsp; {{ $typhoonData->wind ?? '15' }} km/h Wind</div>
-                <div style="font-size:0.72rem; background:rgba(255,183,3,0.12); border-radius:6px; padding:0.35rem 0.75rem; color:#f0b429; display:inline-block;">⚠ Storm Signal #1 Active</div>
+                <div style="font-size:0.82rem; color:#8892b0; margin-bottom:0.5rem;">{{ $typhoonData->temp ?? '28' }}Â°C &nbsp;|&nbsp; {{ $typhoonData->wind ?? '15' }} km/h Wind</div>
+                <div style="font-size:0.72rem; background:rgba(255,183,3,0.12); border-radius:6px; padding:0.35rem 0.75rem; color:#f0b429; display:inline-block;">âš  Storm Signal #1 Active</div>
             </div>
             <div style="background:rgba(0,210,255,0.06); border:1px solid rgba(0,210,255,0.15); border-radius:10px; padding:1rem; display:flex; flex-direction:column; align-items:center; justify-content:center;">
                 <div style="font-size:0.65rem; color:#8892b0; text-transform:uppercase; letter-spacing:1.5px; margin-bottom:0.5rem; text-align:center;">Active Centers</div>
@@ -1140,7 +1199,7 @@
 
         {{-- Evacuation Centers Table --}}
         <div style="margin-bottom:1rem;">
-            <div style="font-size:0.7rem; color:#00d2ff; text-transform:uppercase; letter-spacing:2px; font-weight:700; margin-bottom:0.75rem; padding-bottom:0.5rem; border-bottom:1px solid rgba(0,210,255,0.2);">🏫 Evacuation Centers Status Monitoring</div>
+            <div style="font-size:0.7rem; color:#00d2ff; text-transform:uppercase; letter-spacing:2px; font-weight:700; margin-bottom:0.75rem; padding-bottom:0.5rem; border-bottom:1px solid rgba(0,210,255,0.2);">ðŸ« Evacuation Centers Status Monitoring</div>
             <table style="width:100%; border-collapse:collapse; font-size:0.82rem;">
                 <thead>
                     <tr style="background:rgba(0,210,255,0.12);">
@@ -1156,7 +1215,7 @@
                     <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
                         <td style="padding:0.6rem 0.75rem; font-weight:700; color:#e2e8f0;">{{ $ec->school_name ?? $ec->identification ?? ('Center #' . $ec->id) }}</td>
                         <td style="padding:0.6rem 0.75rem; color:#8892b0; font-size:0.78rem;">{{ Str::limit($ec->location, 40) }}</td>
-                        <td style="padding:0.6rem 0.75rem; text-align:center; color:#8892b0;">{{ $ec->capacity > 0 ? $ec->capacity : '∞' }}</td>
+                        <td style="padding:0.6rem 0.75rem; text-align:center; color:#8892b0;">{{ $ec->capacity > 0 ? $ec->capacity : 'âˆž' }}</td>
                         <td style="padding:0.6rem 0.75rem; text-align:center; font-weight:800; color:#00d2ff; font-size:1.05rem;">{{ $ec->current_occupancy }}</td>
                         <td style="padding:0.6rem 0.75rem; text-align:center;">
                             @php
@@ -1176,7 +1235,7 @@
         {{-- Footer --}}
         <div style="margin-top:1.25rem; padding-top:0.9rem; border-top:1px solid rgba(0,210,255,0.12); display:flex; justify-content:space-between; align-items:center; font-size:0.68rem; color:#4a5568;">
             <span>Generated by DRRM Typhoon & Flood Monitoring System</span>
-            <span>{{ now()->format('Y') }} · DepEd DRRM Monitoring · Printed: {{ now()->format('M d, Y h:i A') }}</span>
+            <span>{{ now()->format('Y') }} Â· DepEd DRRM Monitoring Â· Printed: {{ now()->format('M d, Y h:i A') }}</span>
         </div>
     </div>
 </div>
@@ -1200,6 +1259,96 @@
 {{-- ===================== SCRIPTS ===================== --}}
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    /* ── Sidebar Dropdown Toggles ── */
+    document.addEventListener('DOMContentLoaded', function () {
+        function setupDropdown(toggleId, subId, caretId) {
+            const toggleBtn = document.getElementById(toggleId);
+            const subMenu   = document.getElementById(subId);
+            const caret     = document.getElementById(caretId);
+            if (toggleBtn && subMenu) {
+                toggleBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    subMenu.classList.toggle('open');
+                    if (caret) caret.classList.toggle('open');
+                });
+            }
+        }
+        
+        setupDropdown('evac-nav-register-toggle', 'evac-nav-register-sub', 'evac-register-caret');
+        setupDropdown('evac-nav-reports-toggle', 'evac-nav-reports-sub', 'evac-reports-caret');
+
+        // Register sub-nav: programmatically open family modal to avoid e.preventDefault() conflict
+        function openFamilyModalWithMode(mode) {
+            const el = document.getElementById('familyRegistrationModal');
+            if (!el) return;
+            
+            // Move modal directly to body to avoid z-index or stacking context issues
+            if (el.parentElement !== document.body) {
+                document.body.appendChild(el);
+            }
+            
+            const modal = bootstrap.Modal.getOrCreateInstance(el);
+            // Attach the mode as a temporary property so show.bs.modal can read it
+            el.dataset.pendingMode = mode;
+            modal.show();
+        }
+        const registerNavNew = document.getElementById('registerNavNew');
+        const registerNavExisting = document.getElementById('registerNavExisting');
+        if (registerNavNew) {
+            registerNavNew.addEventListener('click', function(e) {
+                e.preventDefault();
+                openFamilyModalWithMode('new');
+            });
+        }
+        if (registerNavExisting) {
+            registerNavExisting.addEventListener('click', function(e) {
+                e.preventDefault();
+                openFamilyModalWithMode('existing');
+            });
+        }
+
+        /* ── School Table Pagination ── */
+        const ROWS_PER_PAGE = 10;
+        const tbody = document.getElementById('evacSchoolsTbody');
+        const prevBtn = document.getElementById('evacPrevPage');
+        const nextBtn = document.getElementById('evacNextPage');
+        const pageInfo = document.getElementById('evacPageInfo');
+
+        if (!tbody || !prevBtn || !nextBtn || !pageInfo) return;
+
+        // Separate clustered (priority) rows from regular rows
+        const allRows = Array.from(tbody.querySelectorAll('tr.evac-school-row'));
+        const priorityRows = allRows.filter(r => r.dataset.priority === '1');
+        const regularRows  = allRows.filter(r => r.dataset.priority !== '1');
+
+        // Re-order: priority rows first, then regular
+        const orderedRows = [...priorityRows, ...regularRows];
+        orderedRows.forEach(r => tbody.appendChild(r)); // re-append in order
+
+        const totalRows  = orderedRows.length;
+        const totalPages = Math.max(1, Math.ceil(totalRows / ROWS_PER_PAGE));
+        let currentPage  = 1;
+
+        function renderPage(page) {
+            currentPage = page;
+            const start = (page - 1) * ROWS_PER_PAGE;
+            const end   = start + ROWS_PER_PAGE;
+            orderedRows.forEach((row, idx) => {
+                row.style.display = (idx >= start && idx < end) ? '' : 'none';
+            });
+            pageInfo.textContent = `Page ${page} of ${totalPages}`;
+            prevBtn.disabled = page <= 1;
+            nextBtn.disabled = page >= totalPages;
+        }
+
+        prevBtn.addEventListener('click', () => { if (currentPage > 1) renderPage(currentPage - 1); });
+        nextBtn.addEventListener('click', () => { if (currentPage < totalPages) renderPage(currentPage + 1); });
+
+        renderPage(1);
+    });
+</script>
+
 <script>
     // 1. Setup Chart
     document.addEventListener('DOMContentLoaded', function() {
@@ -1525,18 +1674,28 @@
     // Add member function
     function addMemberRow(member = {}) {
         if (!membersContainer) return;
+
+        const noMembersHint = document.getElementById('no-members-hint');
+        if (noMembersHint) noMembersHint.classList.add('d-none');
+
         const row = document.createElement('div');
         row.className = 'row g-2 mb-3 member-row border-bottom pb-3';
+
+        const familyRoleOptions = (typeof FAMILY_ROLES !== 'undefined' ? FAMILY_ROLES : [
+            'Father','Mother','Son','Daughter','Grandfather','Grandmother',
+            'Uncle','Aunt','Nephew','Niece','Cousin','Relative','Guardian','Family Friend'
+        ]).map(r => `<option value="${r}" ${member.family_role === r ? 'selected' : ''}>${r}</option>`).join('');
+
         row.innerHTML = `
-            <div class="col-md-6 mb-2">
+            <div class="col-md-5 mb-2">
                 <label class="form-label small fw-bold">Full Name <span class="text-danger">*</span></label>
                 <input type="text" name="members[${memberIndex}][full_name]" class="form-control" placeholder="Full name" value="${member.full_name ?? ''}" required>
             </div>
-            <div class="col-md-3 mb-2">
+            <div class="col-md-2 mb-2">
                 <label class="form-label small fw-bold">Age <span class="text-danger">*</span></label>
-                <input type="number" name="members[${memberIndex}][age]" class="form-control member-age-input" placeholder="Age" value="${member.age ?? ''}" required min="0">
+                <input type="number" name="members[${memberIndex}][age]" class="form-control member-age-input" placeholder="Age" value="${member.age ?? ''}" required min="0" max="150">
             </div>
-            <div class="col-md-3 mb-2">
+            <div class="col-md-2 mb-2">
                 <label class="form-label small fw-bold">Gender <span class="text-danger">*</span></label>
                 <select name="members[${memberIndex}][gender]" class="form-select" required>
                     <option value="">Select...</option>
@@ -1544,33 +1703,14 @@
                     <option value="female" ${member.gender === 'female' ? 'selected' : ''}>Female</option>
                 </select>
             </div>
-            
-            <!-- Member Vulnerability Tags -->
-            <div class="col-12 vulnerability-wrapper mt-1">
-                <div class="p-2 bg-light rounded border">
-                    <label class="form-label fw-bold small mb-1">Vulnerabilities / Concerns</label>
-                    <select class="form-select form-select-sm mb-2 vulnerability-selector">
-                        <option value="">-- Add Concern --</option>
-                        <option value="flagPregnant">Pregnant</option>
-                        <option value="flagPwd">PWD</option>
-                        <option value="flagSenior">Senior Citizen</option>
-                        <option value="flagLactating">Lactating</option>
-                        <option value="flagChild">Child Under 5</option>
-                    </select>
-                    <div class="vulnerability-tags-container d-flex flex-wrap gap-2">
-                        <!-- Tags will appear here -->
-                    </div>
-                    <div class="d-none">
-                        <input class="form-check-input vulnerability-checkbox flagPregnant" type="checkbox" name="has_pregnant" value="1">
-                        <input class="form-check-input vulnerability-checkbox flagPwd" type="checkbox" name="has_pwd" value="1">
-                        <input class="form-check-input vulnerability-checkbox flagSenior" type="checkbox" name="has_senior" value="1">
-                        <input class="form-check-input vulnerability-checkbox flagLactating" type="checkbox" name="has_lactating" value="1">
-                        <input class="form-check-input vulnerability-checkbox flagChild" type="checkbox" name="has_child_under5" value="1">
-                    </div>
-                </div>
+            <div class="col-md-3 mb-2">
+                <label class="form-label small fw-bold">Family Role</label>
+                <select name="members[${memberIndex}][family_role]" class="form-select">
+                    <option value="">-- Role --</option>
+                    ${familyRoleOptions}
+                </select>
             </div>
-
-            <div class="col-12 d-flex align-items-center justify-content-end mt-2">
+            <div class="col-12 d-flex align-items-center justify-content-end mt-1">
                 <button type="button" class="btn btn-outline-danger btn-sm remove-member">
                     <i class="fas fa-trash me-1"></i> Remove Member
                 </button>
@@ -1585,6 +1725,10 @@
         row.querySelector('.remove-member').addEventListener('click', function() {
             row.remove();
             refreshFamilyVulnerabilityFlags();
+            const noMembersHint2 = document.getElementById('no-members-hint');
+            if (noMembersHint2 && membersContainer.children.length === 0) {
+                noMembersHint2.classList.remove('d-none');
+            }
         });
 
         memberIndex++;
@@ -1609,10 +1753,29 @@
         if (membersContainer) {
             membersContainer.innerHTML = '';
         }
+        // Reset no-members hint
+        const noMembersHint = document.getElementById('no-members-hint');
+        if (noMembersHint) noMembersHint.classList.remove('d-none');
+
         memberIndex = 1;
         if (existingFamilyIdInput) existingFamilyIdInput.value = '';
         setNeedsBuilderExistingNeeds([]);
         refreshFamilyVulnerabilityFlags();
+
+        // Reset new fields: address, contact
+        const familyForm2 = document.getElementById('familyRegistrationForm');
+        if (familyForm2) {
+            ['street','barangay','city','contact_number','other_needs_details'].forEach(name => {
+                const el = familyForm2.querySelector(`[name="${name}"]`);
+                if (el) el.value = '';
+            });
+        }
+        // Reset other needs details panel
+        const otherNeedsWrap = document.getElementById('otherNeedsDetailsWrap');
+        if (otherNeedsWrap) otherNeedsWrap.classList.add('d-none');
+
+        // Reset belongings & pets
+        if (typeof resetBelongingsAndPets === 'function') resetBelongingsAndPets();
     }
 
     // Vulnerability Tag System Logic
@@ -1644,6 +1807,28 @@
             
             if (container && checkbox) {
                 addVulnerabilityTag(container, checkbox, label);
+
+                // If "Other / Special Needs" â€” show the details input
+                if (val === 'flagOtherNeeds') {
+                    const otherWrap = document.getElementById('otherNeedsDetailsWrap');
+                    if (otherWrap) otherWrap.classList.remove('d-none');
+
+                    // When the tag is removed, hide the details input
+                    const tag = container.lastElementChild;
+                    if (tag) {
+                        const removeIcon = tag.querySelector('.fa-times');
+                        if (removeIcon) {
+                            removeIcon.addEventListener('click', () => {
+                                const wrap = document.getElementById('otherNeedsDetailsWrap');
+                                if (wrap) {
+                                    wrap.classList.add('d-none');
+                                    const input = wrap.querySelector('input');
+                                    if (input) input.value = '';
+                                }
+                            });
+                        }
+                    }
+                }
             }
             select.value = '';
         }
@@ -1688,7 +1873,7 @@
         families.forEach((family) => {
             const status = family.checked_out_at ? 'History' : 'Current';
             const timestamp = family.created_at ? new Date(family.created_at).toLocaleDateString() : '';
-            const label = `#${family.id} - ${family.head_family_name} (${status}${timestamp ? ' • ' + timestamp : ''})`;
+            const label = `#${family.id} - ${family.head_family_name} (${status}${timestamp ? ' â€¢ ' + timestamp : ''})`;
             const option = document.createElement('option');
             option.value = family.id;
             option.textContent = label;
@@ -1876,11 +2061,24 @@
                 }
             }
 
-            if (registrationModeSelect) {
-                registrationModeSelect.value = 'new';
-            }
-            if (existingFamilyWrap) {
-                existingFamilyWrap.classList.add('d-none');
+            const mode = (button && button.dataset.mode) || familyModalEl.dataset.pendingMode || 'new';
+            delete familyModalEl.dataset.pendingMode; // clear after reading
+
+            if (mode !== 'new') {
+                if (registrationModeSelect) {
+                    registrationModeSelect.value = mode;
+                    registrationModeSelect.dispatchEvent(new Event('change'));
+                }
+                if (existingFamilyWrap) {
+                    existingFamilyWrap.classList.toggle('d-none', mode !== 'existing');
+                }
+            } else {
+                if (registrationModeSelect) {
+                    registrationModeSelect.value = 'new';
+                }
+                if (existingFamilyWrap) {
+                    existingFamilyWrap.classList.add('d-none');
+                }
             }
             if (existingFamilySelect) {
                 existingFamilySelect.value = '';
@@ -1910,7 +2108,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Typhoon & Flood Report</title>
-    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         @page { margin: 0; size: A4 landscape; }
@@ -1920,7 +2118,7 @@
             background: #0a1128 !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
-            font-family: 'Rajdhani', 'Space Grotesk', sans-serif;
+            font-family: 'Sora', 'Inter', sans-serif;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1971,6 +2169,50 @@
             rows.forEach(row => {
                 const text = row.querySelector('.school-name-text')?.textContent.toLowerCase() || '';
                 row.style.display = text.includes(query) ? '' : 'none';
+            });
+        });
+    }
+
+    // Status Filter for Evacuation Centers Table
+    const filterStatusBtns = document.querySelectorAll('.filter-status-btn');
+    const currentStatusFilterText = document.getElementById('currentStatusFilterText');
+    const evacSchoolsTbody = document.getElementById('evacSchoolsTbody');
+    
+    if (filterStatusBtns.length > 0 && evacSchoolsTbody) {
+        filterStatusBtns.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const status = this.getAttribute('data-status');
+                
+                // Update checkmarks
+                filterStatusBtns.forEach(b => {
+                    const icon = b.querySelector('.check-icon');
+                    if(icon) icon.classList.add('d-none');
+                });
+                const myIcon = this.querySelector('.check-icon');
+                if(myIcon) myIcon.classList.remove('d-none');
+                
+                // Update dropdown button text
+                if (status === 'all') {
+                    currentStatusFilterText.textContent = 'All Status';
+                } else {
+                    currentStatusFilterText.textContent = status.toUpperCase();
+                }
+
+                // Filter rows
+                const rows = evacSchoolsTbody.querySelectorAll('tr.evac-school-row');
+                rows.forEach(row => {
+                    if (status === 'all') {
+                        row.style.display = '';
+                        return;
+                    }
+                    const badge = row.querySelector('.td-status .evac-badge');
+                    if (badge && badge.textContent.trim().toLowerCase() === status) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
             });
         });
     }
