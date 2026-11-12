@@ -21,7 +21,6 @@ Auth::routes();
 Route::get('password/verify', [\App\Http\Controllers\Auth\PasswordResetCodeController::class, 'showVerifyForm'])->name('password.verify-form');
 Route::post('password/verify', [\App\Http\Controllers\Auth\PasswordResetCodeController::class, 'verifyCode'])->name('password.verify-code');
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 // Main dashboard
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -235,7 +234,7 @@ Route::get('/firesafety-buildings/{building_id}/rooms', [FireSafetyController::c
 
 
 
-//Typhoon/Flood Routes
+//Evacuation Management Routes
 Route::prefix('typhoon')->middleware(['auth', 'module.access:typhoon_flood'])->group(function () {
     Route::get('/dashboard', [TyphoonController::class, 'dashboard'])->name('typhoon.dashboard');
     Route::get('/choose-school', [TyphoonController::class, 'chooseSchool'])->name('typhoon.choose-school');
@@ -244,6 +243,7 @@ Route::prefix('typhoon')->middleware(['auth', 'module.access:typhoon_flood'])->g
     Route::put('/families/{id}', [TyphoonController::class, 'updateFamily'])->name('typhoon.families.update');
     Route::post('/families/{id}/decamp', [TyphoonController::class, 'decampFamily'])->name('typhoon.families.decamp');
     Route::get('/evacuation-center/{id}', [TyphoonController::class, 'showEvacuationCenter'])->name('typhoon.evacuation-center.show');
+    Route::get('/evacuation-center/{id}/print', [TyphoonController::class, 'printEvacuationCenter'])->name('typhoon.evacuation-center.print');
     Route::post('/evacuation-center', [TyphoonController::class, 'storeEvacuationCenter'])->name('typhoon.evacuation-center.store');
     Route::put('/evacuation-center/{id}', [TyphoonController::class, 'updateEvacuationCenter'])->name('typhoon.evacuation-center.update');
     Route::get('/realtime', [TyphoonController::class, 'realtime'])->name('typhoon.realtime');
@@ -354,6 +354,16 @@ Route::prefix('drill-monitoring')
         Route::get('/inspection/{id}/checklist', [FireSafetyController::class, 'inspectionChecklist'])->name('fire-safety.inspection.checklist');
 
 
+// 1. Route to display the dashboard (where your button and modal live)
+Route::get('/drill-monitoring/dashboard', [DrillMonitoringController::class, 'index'])
+    ->name('drill-monitoring.dashboard');
+
+// 2. Route to handle the form submission inside your lognewmonitoring view
+Route::post('/drill-monitoring/store', [DrillMonitoringController::class, 'store'])
+    ->name('drill-monitoring.store');
+
+
+
 // Clean explicit route for the report layout
         Route::get('monitoring-tool/{id}', [DrillMonitoringController::class, 'printInspection'])->name('drill-monitoring.print.monitoring-tool');
 
@@ -382,18 +392,22 @@ Route::prefix('inventory-storage')
     ->name('inventory-storage.')
     ->middleware(['auth', 'module.access:inventory_storage'])
     ->group(function () {
-        Route::get('/dashboard', [InventoryStorageController::class, 'dashboard'])->name('dashboard');
-        Route::post('/store', [InventoryStorageController::class, 'store'])->name('store');
-        Route::put('/update/{id}', [InventoryStorageController::class, 'update'])->name('update');
+        Route::get('/dashboard',      [InventoryStorageController::class, 'dashboard'])->name('dashboard');
+        Route::get('/default-list',   [InventoryStorageController::class, 'defaultList'])->name('default-list');
 
+        // Inventory CRUD
+        Route::post('/store',          [InventoryStorageController::class, 'store'])->name('store');
+        Route::get('/item/{id}',       [InventoryStorageController::class, 'getItem'])->name('item.get');
+        Route::put('/update/{id}',     [InventoryStorageController::class, 'update'])->name('update');
+        Route::delete('/destroy/{id}', [InventoryStorageController::class, 'destroy'])->name('destroy');
 
-        Route::get('/default-list', [InventoryStorageController::class, 'defaultList'])->name('default-list');
+        // Default List compliance
+        Route::post('/default-list/save', [InventoryStorageController::class, 'saveDefaultList'])->name('default-list.save');
 
-    
-    Route::post('/default-list', [InventoryStorageController::class, 'storeDefaultList'])
-        ->name('default-list.store');
+        // School switcher (admin only)
+        Route::post('/set-school', [InventoryStorageController::class, 'setSchool'])->name('set-school');
 
-        Route::get('/inventory-storage', [InventoryStorageController::class, 'dashboard'])
-    ->name('inventory-storage.dashboard');
-
+        // PDF export
+        Route::get('/export-pdf', [InventoryStorageController::class, 'exportPdf'])->name('export-pdf');
     });
+
